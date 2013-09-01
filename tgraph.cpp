@@ -170,7 +170,7 @@ void TGraph::decodeneigh(uint v, uint *res) {
 
 void TGraph::direct_point(uint v, uint t, uint *res)  {
         if (v>=nodes || tgraph[v].changes == 0) return;
-        printf("changes node %u: %u\n", tgraph[v].changes);
+        printf("changes node %u: %u\n", v,tgraph[v].changes);
         uint *timep = new uint[tgraph[v].changes];
         uint *nodep = new uint[tgraph[v].changes];
         
