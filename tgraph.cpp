@@ -62,7 +62,7 @@ TGraph* TGraph::load(ifstream &in) {
         tg->tgraph = cds_utils::loadValue<TGraphEventList>(in, tg->nodes);
         
         for(uint i=0; i < tg->nodes; i++) {
-                if (tg->graph[i].changes > 0) {
+                if (tg->tgraph[i].changes > 0) {
                         tg->tgraph[i].cneighbors = cds_utils::loadValue<unsigned char>(in, tg->tgraph[i].csize_neighbors);
                         tg->tgraph[i].ctime = cds_utils::loadValue<uint>(in, tg->tgraph[i].csize_time);
                 }
