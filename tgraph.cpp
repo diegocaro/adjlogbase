@@ -241,7 +241,7 @@ void TGraph::direct_strong(uint v, uint tstart, uint tend, uint *res)  {
         uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
         
         //uint *buffer = new uint[tgraph[v].changes];
-        uint *interval = new uint[tgraph[v].changes];
+        uint *interval = new uint[BLOCKSIZE*tgraph[v].changes];
         
         decodetime(v, timep);
         decodeneigh(v, nodep);
