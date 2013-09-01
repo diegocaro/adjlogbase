@@ -171,8 +171,8 @@ void TGraph::decodeneigh(uint v, uint *res) {
 void TGraph::direct_point(uint v, uint t, uint *res)  {
         if (v>=nodes || tgraph[v].changes == 0) return;
         printf("changes node %u: %u\n", v,tgraph[v].changes);
-        uint *timep = new uint[tgraph[v].changes];
-        uint *nodep = new uint[tgraph[v].changes];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
+        uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
         
         decodetime(v, timep);
         decodeneigh(v, nodep);
@@ -188,7 +188,6 @@ void TGraph::direct_point(uint v, uint t, uint *res)  {
         qsort(&res[1], *res, sizeof(unsigned int), compare);
         xor_arraysort(res);
         
-        
         delete [] timep;
         delete [] nodep;
 }
@@ -196,11 +195,11 @@ void TGraph::direct_point(uint v, uint t, uint *res)  {
 void TGraph::direct_weak(uint v, uint tstart, uint tend, uint *res)  {
         if (v>=nodes|| tgraph[v].changes == 0) return;
         
-        uint *timep = new uint[tgraph[v].changes];
-        uint *nodep = new uint[tgraph[v].changes];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
+        uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
         
-        uint *buffer = new uint[tgraph[v].changes];
-        uint *interval = new uint[tgraph[v].changes];
+        uint *buffer = new uint[BLOCKSIZE*tgraph[v].changes];
+        uint *interval = new uint[BLOCKSIZE*tgraph[v].changes];
         
         decodetime(v, timep);
         decodeneigh(v, nodep);
@@ -239,8 +238,8 @@ void TGraph::direct_weak(uint v, uint tstart, uint tend, uint *res)  {
 void TGraph::direct_strong(uint v, uint tstart, uint tend, uint *res)  {
         if (v>=nodes || tgraph[v].changes == 0) return;
         
-        uint *timep = new uint[tgraph[v].changes];
-        uint *nodep = new uint[tgraph[v].changes];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
+        uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
         
         //uint *buffer = new uint[tgraph[v].changes];
         uint *interval = new uint[tgraph[v].changes];
@@ -295,8 +294,8 @@ uint TGraph::snapshot(uint t){
 int TGraph::edge_point(uint u, uint v, uint t){
         if (v>=nodes || tgraph[v].changes == 0) return 0;
         
-        uint *timep = new uint[tgraph[v].changes];
-        uint *nodep = new uint[tgraph[v].changes];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
+        uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
         
         decodetime(v, timep);
         decodeneigh(v, nodep);
@@ -313,8 +312,8 @@ int TGraph::edge_point(uint u, uint v, uint t){
 int TGraph::edge_weak(uint u, uint v, uint tstart, uint tend){
         if (v>=nodes || tgraph[v].changes == 0) return 0;
         
-        uint *timep = new uint[tgraph[v].changes];
-        uint *nodep = new uint[tgraph[v].changes];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
+        uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
         
         decodetime(v, timep);
         decodeneigh(v, nodep);
@@ -345,8 +344,8 @@ int TGraph::edge_weak(uint u, uint v, uint tstart, uint tend){
 int TGraph::edge_strong(uint u, uint v, uint tstart, uint tend){
         if (v>=nodes || tgraph[v].changes == 0) return 0;
         
-        uint *timep = new uint[tgraph[v].changes];
-        uint *nodep = new uint[tgraph[v].changes];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
+        uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
         
         decodetime(v, timep);
         decodeneigh(v, nodep);
@@ -377,8 +376,8 @@ int TGraph::edge_strong(uint u, uint v, uint tstart, uint tend){
 int TGraph::edge_next(uint u, uint v, uint t){
         if (v>=nodes || tgraph[v].changes == 0) return 0;
         
-        uint *timep = new uint[tgraph[v].changes];
-        uint *nodep = new uint[tgraph[v].changes];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
+        uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
         
         decodetime(v, timep);
         decodeneigh(v, nodep);
