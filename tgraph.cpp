@@ -164,7 +164,7 @@ void TGraph::decodeneigh(uint v, uint *res) {
 
 void TGraph::direct_point(uint v, uint t, uint *res)  {
         if (v>=nodes || tgraph[v].changes == 0) return;
-        
+        printf("changes node %u: %u\n", tgraph[v].changes);
         uint *timep = new uint[tgraph[v].changes];
         uint *nodep = new uint[tgraph[v].changes];
         
@@ -381,7 +381,7 @@ int TGraph::edge_next(uint u, uint v, uint t){
         uint tnext=-1;
         for(uint j=0; j < tgraph[v].changes; j++) {
                 if (timep[j] > t) {
-                        if (occ%2 == 1) {tnext=t; break};
+                        if (occ%2 == 1) {tnext=t; break;}
                         
                 }
                 
