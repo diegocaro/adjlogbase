@@ -181,6 +181,10 @@ void TGraph::direct_point(uint v, uint t, uint *res)  {
         *res = i;
         qsort(&res[1], *res, sizeof(unsigned int), compare);
         xor_arraysort(res);
+        
+        
+        delete [] timep;
+        delete [] nodep;
 }
 
 void TGraph::direct_weak(uint v, uint tstart, uint tend, uint *res)  {
@@ -218,6 +222,11 @@ void TGraph::direct_weak(uint v, uint tstart, uint tend, uint *res)  {
         remove_duplicates(interval);
         
         merge_arraysort(res, buffer, interval);
+        
+        delete [] timep;
+        delete [] nodep;
+        delete [] buffer;
+        delete [] interval;
 }
 
 
@@ -256,6 +265,10 @@ void TGraph::direct_strong(uint v, uint tstart, uint tend, uint *res)  {
         remove_duplicates(interval);
         
         diff_arraysort(res, interval);
+        
+        delete [] timep;
+        delete [] nodep;
+        delete [] interval;
 }
 
 
@@ -319,7 +332,8 @@ int TGraph::edge_weak(uint u, uint v, uint tstart, uint tend){
         }
         return 0;
         
-        
+        delete [] timep;
+        delete [] nodep;
 }
 
 int TGraph::edge_strong(uint u, uint v, uint tstart, uint tend){
@@ -345,6 +359,9 @@ int TGraph::edge_strong(uint u, uint v, uint tstart, uint tend){
                 
         }
         
+        delete [] timep;
+        delete [] nodep;
+        
         if ( (occ%2) && occinterval > 0 ) {
                 return 1;
         }
@@ -361,15 +378,18 @@ int TGraph::edge_next(uint u, uint v, uint t){
         decodeneigh(v, nodep);
         
         uint occ=0;
-
+        uint tnext=-1;
         for(uint j=0; j < tgraph[v].changes; j++) {
                 if (timep[j] > t) {
-                        if (occ%2 == 1) return t;
+                        if (occ%2 == 1) {tnext=t; break};
                         
                 }
                 
                 if( v == nodep[j]) occ++;
         }
         
-        return -1;
+        delete [] timep;
+        delete [] nodep;
+        
+        return tnext;
 }
