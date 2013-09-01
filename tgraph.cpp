@@ -121,7 +121,11 @@ void TGraph::create(TGraphReader &tgr) {
                 if (i%1000==0) fprintf(stderr, "Compressing: %0.2f%%\r", (float)i*100/nodes);
                 node_changes = tgr.tgraph[i].changes;
                 
-                if (node_changes == 0) { continue;}
+                tgraph[i].changes = 0;
+                tgraph[i].csize_time = 0;
+                tgraph[i].csize_neighbors = 0;
+                
+                if (node_changes == 0) { LOG("node %u with zero changes\n") ;continue;}
                  
                 csize_neigh = etdc_encode(&table, tgr.tgraph[i].neighbors.data(), node_changes, ccnodesbuffer);
                 tgraph[i].cneighbors = new unsigned char [csize_neigh];
