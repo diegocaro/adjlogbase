@@ -148,12 +148,14 @@ void TGraph::create(TGraphReader &tgr) {
 
 
 void TGraph::decodetime(uint v, uint *res) {
-        printf("%u has %u changes\n", v, tgraph[v].changes);
+        if (tgraph[v].changes == 0) return;
+         
         cc->Decompress(tgraph[v].ctime, res, tgraph[v].changes);
         decodediff(res, tgraph[v].changes);
 }
 
 void TGraph::decodeneigh(uint v, uint *res) {
+        if (tgraph[v].changes == 0) return;
         etdc_decode(etdctable, etdcsize, tgraph[v].cneighbors, 
                         tgraph[v].csize_neighbors, res, tgraph[v].changes);
         
