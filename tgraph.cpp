@@ -39,9 +39,10 @@ void TGraph::save(ofstream &out) {
         cds_utils::saveValue<TGraphEventList>(out, tgraph, nodes);
         
         for(uint i=0; i < nodes; i++) {
-                cds_utils::saveValue<unsigned char>(out, tgraph[i].cneighbors, tgraph[i].csize_neighbors);
-                
-                cds_utils::saveValue<uint>(out, tgraph[i].ctime, tgraph[i].csize_time);
+                if (tgraph[i].changes > 0) {
+                        cds_utils::saveValue<unsigned char>(out, tgraph[i].cneighbors, tgraph[i].csize_neighbors);
+                        cds_utils::saveValue<uint>(out, tgraph[i].ctime, tgraph[i].csize_time);
+                }
         }
         
         cds_utils::saveValue<uint>(out, etdctable, etdcsize);
@@ -61,9 +62,10 @@ TGraph* TGraph::load(ifstream &in) {
         tg->tgraph = cds_utils::loadValue<TGraphEventList>(in, tg->nodes);
         
         for(uint i=0; i < tg->nodes; i++) {
-                tg->tgraph[i].cneighbors = cds_utils::loadValue<unsigned char>(in, tg->tgraph[i].csize_neighbors);
-                
-                tg->tgraph[i].ctime = cds_utils::loadValue<uint>(in, tg->tgraph[i].csize_time);
+                if (tg->graph[i].changes > 0) {
+                        tg->tgraph[i].cneighbors = cds_utils::loadValue<unsigned char>(in, tg->tgraph[i].csize_neighbors);
+                        tg->tgraph[i].ctime = cds_utils::loadValue<uint>(in, tg->tgraph[i].csize_time);
+                }
         }
         
         tg->etdctable = cds_utils::loadValue<uint>(in, tg->etdcsize);
@@ -125,7 +127,7 @@ void TGraph::create(TGraphReader &tgr) {
                 tgraph[i].csize_time = 0;
                 tgraph[i].csize_neighbors = 0;
                 
-                if (node_changes == 0) { LOG("node %u with zero changes\n", i) ;continue;}
+                if (node_changes == 0) { LOG("node %u with zero changes", i) ;continue;}
                  
                 csize_neigh = etdc_encode(&table, tgr.tgraph[i].neighbors.data(), node_changes, ccnodesbuffer);
                 tgraph[i].cneighbors = new unsigned char [csize_neigh];
