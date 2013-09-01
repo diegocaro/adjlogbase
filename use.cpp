@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 	f.close();
         
         
-        /*
+      
 	uint a,b;
 	printf("Write your query: ");
 	while(EOF != scanf("%u %u", &a, &b)) {
@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
                 printf("Write your query: ");
 	}
 	return 0;
-        */
-
+       
+/*
 	uint a,b,c;
 	printf("Write your query: ");
 	while(EOF != scanf("%u %u %u", &a, &b, &c)) {
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
                 printf("Write your query: ");
 	}
 	return 0;
-        /*
+        
         
         
 	uint a,b;

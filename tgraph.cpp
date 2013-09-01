@@ -51,13 +51,13 @@ TGraph* TGraph::load(ifstream &in) {
         TGraph *tg;
         
         tg = cds_utils::loadValue<TGraph>(in, 1);
-        /*
+        
         LOG("nodes: %u", tg->nodes);
         LOG("edges: %u", tg->edges);
         LOG("changes: %u", tg->changes);
         LOG("maxtime: %u", tg->maxtime);
         LOG("etdcsize: %u", tg->etdcsize);
-        */
+        
         tg->tgraph = cds_utils::loadValue<TGraphEventList>(in, tg->nodes);
         
         for(uint i=0; i < tg->nodes; i++) {
