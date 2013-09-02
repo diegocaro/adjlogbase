@@ -58,6 +58,8 @@ public:
         int edge_point(uint u, uint v, uint t);
         int edge_weak(uint u, uint v, uint tstart, uint tend);
         int edge_strong(uint u, uint v, uint tstart, uint tend);
+
+        int edge_interval(uint u, uint v, uint tstart, uint tend, uint semantic);
         
         int edge_next(uint u, uint v, uint t);
         
@@ -65,6 +67,11 @@ public:
 	void direct_weak(uint node, uint tstart, uint tend, uint *res) ;
 	void direct_strong(uint node, uint tstart, uint tend, uint *res) ;	
 	
+	void direct_interval(uint node, uint tstart, uint tend, uint semantic, uint *res);
+	void reverse_interval(uint node, uint tstart, uint tend, uint semantic, uint *res);
+	
+
+        
 	/*
         void reverse_point(uint node, uint t, uint *res) const;
 	void reverse_weak(uint node, uint tstart, uint tend, uint *res) const;

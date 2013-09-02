@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 	TGraph *index;
 	ifstream f;
 	uint *buffer;
-	uint i, j;
+	//uint i, j;
 	
         if (argc < 2) {
                 fprintf(stderr, "Usage: %s <inputgraph>\n", argv[0]);

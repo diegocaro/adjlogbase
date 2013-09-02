@@ -191,7 +191,7 @@ void TGraph::direct_point(uint v, uint t, uint *res)  {
         delete [] nodep;
 }
 
-void TGraph::direct_weak(uint v, uint tstart, uint tend, uint *res)  {
+void TGraph::direct_interval(uint v, uint tstart, uint tend, uint semantic, uint *res)  {
         if (v>=nodes|| tgraph[v].changes == 0) return;
         
         uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
@@ -225,7 +225,13 @@ void TGraph::direct_weak(uint v, uint tstart, uint tend, uint *res)  {
         qsort(&interval[1], *interval, sizeof(unsigned int), compare);
         remove_duplicates(interval);
         
-        merge_arraysort(res, buffer, interval);
+        if (semantic == 0) {
+                merge_arraysort(res, buffer, interval);
+        }
+        else if (semantic == 1) {
+                diff_arraysort(buffer, interval);
+                memcpy(res, buffer, (*buffer+1)*sizeof(uint));
+        }
         
         delete [] timep;
         delete [] nodep;
@@ -234,45 +240,13 @@ void TGraph::direct_weak(uint v, uint tstart, uint tend, uint *res)  {
 }
 
 
+void TGraph::direct_weak(uint v, uint tstart, uint tend, uint *res)  {
+        direct_interval(v, tstart, tend, 0, res);
+}
+
+
 void TGraph::direct_strong(uint v, uint tstart, uint tend, uint *res)  {
-        if (v>=nodes || tgraph[v].changes == 0) return;
-        
-        uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
-        uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
-        
-        //uint *buffer = new uint[tgraph[v].changes];
-        uint *interval = new uint[BLOCKSIZE*tgraph[v].changes];
-        
-        decodetime(v, timep);
-        decodeneigh(v, nodep);
-        
-        uint i=0;
-        uint k=0;
-        for(uint j=0; j < tgraph[v].changes; j++) {
-                if (timep[j] <= tstart) {
-                        res[++i] = nodep[j];
-                }
-                
-                else if (timep[j] > tstart && timep[j]<= tend) {
-                        interval[++k] = nodep[j];
-                }
-                
-                if (timep[j] > tend) break;
-        }
-        *res = i;
-        *interval = k;
-        
-        qsort(&res[1], *res, sizeof(unsigned int), compare);
-        xor_arraysort(res);
-        
-        qsort(&interval[1], *interval, sizeof(unsigned int), compare);
-        remove_duplicates(interval);
-        
-        diff_arraysort(res, interval);
-        
-        delete [] timep;
-        delete [] nodep;
-        delete [] interval;
+        direct_interval(v, tstart, tend, 1, res);
 }
 
 
@@ -308,7 +282,7 @@ int TGraph::edge_point(uint u, uint v, uint t){
         return (occ%2);
 }
 
-int TGraph::edge_weak(uint u, uint v, uint tstart, uint tend){
+int TGraph::edge_interval(uint u, uint v, uint tstart, uint tend, uint semantic){
         if (v>=nodes || tgraph[v].changes == 0) return 0;
         
         uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
@@ -331,49 +305,33 @@ int TGraph::edge_weak(uint u, uint v, uint tstart, uint tend){
                 
         }
         
-        if ( (occ%2) || occinterval > 0) {
-                return 1;
+        delete [] timep;
+        delete [] nodep;
+        
+        if (semantic == 0) {
+                if ( (occ%2) || occinterval > 0)
+                        return 1;
+        }
+        else if (semantic == 1) {
+                if ( (occ%2) && occinterval == 0 ) {
+                        return 1;
+                }
         }
         return 0;
         
-        delete [] timep;
-        delete [] nodep;
+        
+}
+
+int TGraph::edge_weak(uint u, uint v, uint tstart, uint tend){
+        return edge_interval(u, v, tstart, tend, 0);
 }
 
 int TGraph::edge_strong(uint u, uint v, uint tstart, uint tend){
-        if (v>=nodes || tgraph[v].changes == 0) return 0;
-        
-        uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
-        uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
-        
-        decodetime(v, timep);
-        decodeneigh(v, nodep);
-        
-        uint occ=0;
-        uint occinterval=0;
-        for(uint j=0; j < tgraph[v].changes; j++) {
-                if (timep[j] <= tstart) {
-                        if( v == nodep[j]) occ++;
-                }
-                else if (timep[j] > tstart && timep[j]<= tend) {
-                        if( v == nodep[j]) occinterval++;
-                }
-                
-                if (timep[j] > tend) break;
-                
-        }
-        
-        delete [] timep;
-        delete [] nodep;
-        
-        if ( (occ%2) && occinterval > 0 ) {
-                return 1;
-        }
-        return 0;
+        return edge_interval(u, v, tstart, tend, 1);
 }
 
 int TGraph::edge_next(uint u, uint v, uint t){
-        if (v>=nodes || tgraph[v].changes == 0) return 0;
+        if (v>=nodes || tgraph[v].changes == 0) return -1;
         
         uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
         uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
@@ -384,12 +342,15 @@ int TGraph::edge_next(uint u, uint v, uint t){
         uint occ=0;
         uint tnext=-1;
         for(uint j=0; j < tgraph[v].changes; j++) {
-                if (timep[j] > t) {
-                        if (occ%2 == 1) {tnext=t; break;}
+                if( v == nodep[j]) { 
+                        occ++; 
                         
+                        if (timep[j] > t) {
+                                if (occ%2 == 1) tnext = timep[j];
+                                else tnext = t;
+                                break;
+                        }
                 }
-                
-                if( v == nodep[j]) occ++;
         }
         
         delete [] timep;
