@@ -70,6 +70,7 @@ TGraph* TGraph::load(ifstream &in) {
         
         tg->etdctable = cds_utils::loadValue<uint>(in, tg->etdcsize);
         
+	tg->set_policy(tg->cp);
         tg->loadpolicy();
         
         return tg;
