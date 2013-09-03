@@ -98,7 +98,7 @@ TimeQuery * readQueries(char * filename, int * nqueries) {
                         }
                 }
 
-                if(query->type  == EDGE || query->type == EDGE_STRONG || query->type == EDGE_WEAK || query->type == SNAPSHOT)
+                if(query->type  == EDGE || query->type  == EDGE_NEXT || query->type == EDGE_STRONG || query->type == EDGE_WEAK || query->type == SNAPSHOT)
                         res = fscanf(queryFile, "%d\n", &query->expectednres);
                 else {
                         res = fscanf(queryFile, "%d", &query->expectednres);
@@ -230,9 +230,10 @@ int main(int argc, char ** argv) {
 
 #ifndef EXPERIMENTS
 //                //Comentar para medir tiempos:
-                if (CHECK_RESULTS) {
+                
                   if (savegotFile) {
                     gotFile = fopen(gotqueryFile, "a");
+		    fprintf(gotFile, "%d ", query.type);
                     switch(query.type) {
                     case EDGE: case EDGE_NEXT: {
                       fprintf(gotFile, "%d %d %d\n", query.row, query.column, query.time);
@@ -256,7 +257,7 @@ int main(int argc, char ** argv) {
 		    break;
                     }
 
-                    if (query.type == EDGE || query.type == EDGE_WEAK || query.type == EDGE_STRONG || query.type == SNAPSHOT) {
+                    if (query.type == EDGE || query.type == EDGE_NEXT || query.type == EDGE_WEAK || query.type == EDGE_STRONG || query.type == SNAPSHOT) {
                       fprintf(gotFile,"%d\n", gotres);
                     } else {
                       uint j;
@@ -269,8 +270,8 @@ int main(int argc, char ** argv) {
 
                     fclose(gotFile);
                   }
-
-
+		  
+		if (CHECK_RESULTS) {
                   int failcompare = 0;
                   if (query.type == EDGE || query.type == EDGE_NEXT || query.type == EDGE_WEAK || query.type == EDGE_STRONG || query.type == SNAPSHOT) {
                     failcompare = (gotres != query.expectednres);

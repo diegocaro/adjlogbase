@@ -143,6 +143,10 @@ void TGraph::create(TGraphReader &tgr) {
                 tgraph[i].changes = node_changes;
                 tgraph[i].csize_time = csize_time;
                 tgraph[i].csize_neighbors = csize_neigh;
+		
+		
+		tgr.tgraph[i].neighbors.clear();
+		tgr.tgraph[i].timepoints.clear();
         }
         fprintf(stderr, "\n");
         
@@ -264,7 +268,7 @@ uint TGraph::snapshot(uint t){
         return edges;
 }
 
-int TGraph::edge_point(uint u, uint v, uint t){
+int TGraph::edge_point(uint v, uint u, uint t){
         if (v>=nodes || tgraph[v].changes == 0) return 0;
         
         uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
@@ -276,13 +280,13 @@ int TGraph::edge_point(uint u, uint v, uint t){
         uint occ=0;
         for(uint j=0; j < tgraph[v].changes; j++) {
                 if (timep[j] > t) break;
-                if( v == nodep[j]) occ++;
+                if( u == nodep[j]) occ++;
         }
         
         return (occ%2);
 }
 
-int TGraph::edge_interval(uint u, uint v, uint tstart, uint tend, uint semantic){
+int TGraph::edge_interval(uint v, uint u, uint tstart, uint tend, uint semantic){
         if (v>=nodes || tgraph[v].changes == 0) return 0;
         
         uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
@@ -295,10 +299,10 @@ int TGraph::edge_interval(uint u, uint v, uint tstart, uint tend, uint semantic)
         uint occinterval=0;
         for(uint j=0; j < tgraph[v].changes; j++) {
                 if (timep[j] <= tstart) {
-                        if( v == nodep[j]) occ++;
+                        if( u == nodep[j]) occ++;
                 }
                 else if (timep[j] > tstart && timep[j]<= tend) {
-                        if( v == nodep[j]) occinterval++;
+                        if( u == nodep[j]) occinterval++;
                 }
                 
                 if (timep[j] > tend) break;
@@ -330,7 +334,7 @@ int TGraph::edge_strong(uint u, uint v, uint tstart, uint tend){
         return edge_interval(u, v, tstart, tend, 1);
 }
 
-int TGraph::edge_next(uint u, uint v, uint t){
+int TGraph::edge_next(uint v, uint u, uint t){
         if (v>=nodes || tgraph[v].changes == 0) return -1;
         
         uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
@@ -341,18 +345,27 @@ int TGraph::edge_next(uint u, uint v, uint t){
         
         uint occ=0;
         uint tnext=-1;
+	uint wasOff=0;
+	uint k;
         for(uint j=0; j < tgraph[v].changes; j++) {
-                if( v == nodep[j]) { 
-                        occ++; 
-                        
-                        if (timep[j] > t) {
-                                if (occ%2 == 1) tnext = timep[j];
-                                else tnext = t;
-                                break;
-                        }
+	
+                if( u == nodep[j]) { 
+	                if (timep[j] > t) {
+				wasOff = 1;
+				k = j;
+	                        break;
+	                }
+                        occ++;
                 }
         }
         
+	if (occ%2==1) {
+		tnext = t;
+	}
+	else if (wasOff && occ%2==0) {
+		tnext = timep[k];
+	}
+
         delete [] timep;
         delete [] nodep;
         
