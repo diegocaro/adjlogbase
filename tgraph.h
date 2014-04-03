@@ -38,6 +38,16 @@ public:
         uint *ctime;
 };
 
+
+class TGraphReverse {
+public:
+	uint size; //out degree, number of elements
+	uint csize; //compressed size
+	uint *clist; //pointer to compressed list
+};
+
+
+
 class TGraph {
 public:
         uint nodes;
@@ -51,6 +61,9 @@ public:
 	enum CP_FORMAT cp;
 	
         TGraphEventList* tgraph;
+
+        TGraphReverse *reverse;
+
         CodingPolicy *cc;
         
 	void set_policy(enum CP_FORMAT c) {
@@ -82,7 +95,7 @@ public:
         
         void decodetime(uint v, uint *res);
         void decodeneigh(uint v, uint *res);
-        
+        void decodereverse(uint v, uint *res);
         
         uint snapshot(uint t);
         
@@ -103,11 +116,11 @@ public:
 	
 
         
-	/*
-        void reverse_point(uint node, uint t, uint *res) const;
-	void reverse_weak(uint node, uint tstart, uint tend, uint *res) const;
-	void reverse_strong(uint node, uint tstart, uint tend, uint *res) const;
-        */
+
+        void reverse_point(uint node, uint t, uint *res) ;
+	void reverse_weak(uint node, uint tstart, uint tend, uint *res) ;
+	void reverse_strong(uint node, uint tstart, uint tend, uint *res) ;
+
 };
 
 
