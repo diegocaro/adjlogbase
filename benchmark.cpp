@@ -298,7 +298,7 @@ int main(int argc, char ** argv) {
 
 
         }
-        ulong microsecs = endClockTime()/1000; //to microsecs
+        unsigned long microsecs = endClockTime()/1000; //to microsecs
 
 //	printf("time = (%lf), %d queries, %lf micros/query, %lf micros/arista\n",
 //	               difftime, nqueries,

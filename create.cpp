@@ -1,5 +1,9 @@
 #include <cstdio>
 #include <fstream>
+
+#include <map>
+#include <vector>
+#include <assert.h>
 #include <getopt.h>
 #include "tgraph.h"
 #include "tgraphreader.h"
@@ -60,16 +64,64 @@ int readopts(int argc, char **argv, struct opts *opts) {
 }
 
 
+TGraphReader* readcontacts() {
+	uint nodes, edges, lifetime, contacts;
+	uint u,v,a,b;
+
+	vector < map<uint, vector<uint> > > btable;
+
+	scanf("%u %u %u %u", &nodes, &edges, &lifetime, &contacts);
+
+	for(uint i = 0; i < nodes; i++) {
+		map<uint, vector<uint> > t;
+		btable.push_back(t);
+	}
+
+	uint c_read = 0;
+	while( EOF != scanf("%u %u %u %u", &u, &v, &a, &b)) {
+		c_read++;
+		if(c_read%500000==0) fprintf(stderr, "Processing %.1f%%\r", (float)c_read/contacts*100);
+
+		btable[u][a].push_back(v);
+		if (b == lifetime-1) continue;
+
+		btable[u][b].push_back(v);
+	}
+	fprintf(stderr, "Processing %.1f%%\r", (float)c_read/contacts*100);
+	assert(c_read == contacts);
+
+
+	TGraphReader *tgraphreader = new TGraphReader(nodes,edges,2*contacts,lifetime);
+
+
+	map<uint, vector<uint> >::iterator it;
+
+		for(uint i = 0; i < nodes; i++) {
+			for( it = btable[i].begin(); it != btable[i].end(); ++it) {
+						for(uint j = 0; j < (it->second).size(); j++ ) {
+							tgraphreader->addChange(i, (it->second).at(j), it->first);
+						}
+
+					}
+		}
+
+
+		return tgraphreader;
+}
+
 int main(int argc, char *argv[]) {
-        uint nodes, edges, changes, maxtime;
-        uint u,v,t,o;
-        uint p;
+
         int optind;
         TGraph tg;
         struct opts opts;
+
+        TGraphReader *tgraphreader;
+
 	optind = readopts(argc, argv, &opts);
         
-        
+        /*        uint nodes, edges, changes, maxtime;
+        uint u,v,t,o;
+        uint p;
         //scanf("%d %d %d %d", &nodes, &edges, &changes, &maxtime);
         scanf("%u %u %u", &nodes,&changes, &maxtime);
         
@@ -84,9 +136,13 @@ int main(int argc, char *argv[]) {
         }
         
         fprintf(stderr, "\n");
-        
+        */
+
 	tg.set_policy(opts.c);
-        tg.create(tgraphreader);
+
+	tgraphreader = readcontacts();
+
+        tg.create(*tgraphreader);
         
         INFO("Saving structure...");
 	ofstream f;
