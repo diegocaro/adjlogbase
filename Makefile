@@ -8,8 +8,14 @@ DEBUG = -g -DDEBUG
 
 EXPERIMENTS = -DEXPERIMENTS
 
+UNAME := $(shell uname)
+LDFLAGSRT = 
+ifeq ($(UNAME), Linux)
+LDFLAGSRT = -lrt
+endif
+
 CFLAGS=-c -Wall -I$(DEPEN_COMPRESS) -I$(DEPEN_COMPRESS2) -I$(DEPEN_ETDC) -O3 
-LDFLAGS=-Wall -lm 
+LDFLAGS=-Wall -lm $(LDFLAGSRT)
 
 EXT=
 
