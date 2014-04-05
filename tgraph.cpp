@@ -10,7 +10,8 @@
 
 #include "arraysort.h"
 
-
+#include <unordered_map>
+#include <map>
 using namespace std;
 
 
@@ -234,8 +235,26 @@ void TGraph::direct_point(uint v, uint t, uint *res)  {
         decodetime(v, timep);
         decodeneigh(v, nodep);
         
+        
         uint i=0;
         
+        
+        unordered_map <uint,uint> thash;
+        for(uint j=0; j < tgraph[v].changes; j++) {
+          if (timep[j] > t) break;
+          thash[nodep[j]]++;
+        }
+        for ( unordered_map<uint,uint>::iterator it = thash.begin(); it != thash.end(); ++it ) {
+          if (it->second %2 == 1) {
+//            printf("first %u second %u\n",it->first,it->second);
+            res[++i] = it->first;
+          }
+          
+        }
+        *res = i;
+        
+        
+        /*
         for(uint j=0; j < tgraph[v].changes; j++) {
                 if (timep[j] > t) break;
                 res[++i] = nodep[j];
@@ -244,7 +263,7 @@ void TGraph::direct_point(uint v, uint t, uint *res)  {
         *res = i;
         qsort(&res[1], *res, sizeof(unsigned int), compare);
         xor_arraysort(res);
-        
+        */
         delete [] timep;
         delete [] nodep;
 }
@@ -261,6 +280,52 @@ void TGraph::direct_interval(uint v, uint tstart, uint tend, uint semantic, uint
         decodetime(v, timep);
         decodeneigh(v, nodep);
         
+        
+        
+        
+        unordered_map <uint,uint> thashp; //point 
+        unordered_map <uint,uint> thashi; //interval
+        for(uint j=0; j < tgraph[v].changes; j++) {
+          if (timep[j] <= tstart) {
+              thashp[nodep[j]]++;
+          }
+          
+          else if (timep[j] > tstart && timep[j]<= tend) {
+              thashi[nodep[j]] = 1;
+          }
+          
+          if (timep[j] > tend) break;
+        }
+        
+        
+        uint i=0;
+        for ( unordered_map<uint,uint>::iterator it = thashp.begin(); it != thashp.end(); ++it ) {
+          if (it->second %2 == 1) {
+            buffer[++i] = it->first;
+          }
+          
+        }
+        *buffer = i;
+        
+        uint k=0;
+        for ( unordered_map<uint,uint>::iterator it = thashi.begin(); it != thashi.end(); ++it ) {
+            interval[++k] = it->first;        
+        }
+        *interval = k;
+        
+        qsort(&buffer[1], *buffer, sizeof(unsigned int), compare);    
+        qsort(&interval[1], *interval, sizeof(unsigned int), compare);
+        
+        //this semantic filter is O(d) where d is the out degree of the node
+        if (semantic == 0) {
+                merge_arraysort(res, buffer, interval);
+        }
+        else if (semantic == 1) {
+                diff_arraysort(buffer, interval);
+                memcpy(res, buffer, (*buffer+1)*sizeof(uint));
+        }
+        
+        /*
         uint i=0;
         uint k=0;
         for(uint j=0; j < tgraph[v].changes; j++) {
@@ -290,6 +355,7 @@ void TGraph::direct_interval(uint v, uint tstart, uint tend, uint semantic, uint
                 diff_arraysort(buffer, interval);
                 memcpy(res, buffer, (*buffer+1)*sizeof(uint));
         }
+        */
         
         delete [] timep;
         delete [] nodep;

@@ -274,6 +274,7 @@ int main(int argc, char ** argv) {
                   if (query.type == EDGE || query.type == EDGE_NEXT || query.type == EDGE_WEAK || query.type == EDGE_STRONG || query.type == SNAPSHOT) {
                     failcompare = (gotres != query.expectednres);
                   } else {
+                    qsort(&gotreslist[1], *gotreslist, sizeof(unsigned int), compare);
                     failcompare = compareRes(gotreslist, query.expectedres);
                     gotres = gotreslist[0];
                   }
