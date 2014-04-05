@@ -109,6 +109,8 @@ TGraphReader* readcontacts() {
 
 	//temporal graph
 	for(uint i = 0; i < nodes; i++) {
+		if(i%10000==0) fprintf(stderr, "Copying temporal %.1f%%\r", (float)i/nodes*100);
+    
 		for( it = btable[i].begin(); it != btable[i].end(); ++it) {
 			for(uint j = 0; j < (it->second).size(); j++ ) {
 				tgraphreader->addChange(i, (it->second).at(j), it->first);
@@ -120,6 +122,8 @@ TGraphReader* readcontacts() {
 	//reverse neighbors
 	set<uint>::iterator its;
 	for(uint i = 0; i < nodes; i++) {
+		if(i%10000==0) fprintf(stderr, "Copying reverse %.1f%%\r", (float)i/nodes*100);
+    
 		for( its = revgraph[i].begin(); its != revgraph[i].end(); ++its) {
 			tgraphreader->addReverseEdge(i, *its);
 		}
