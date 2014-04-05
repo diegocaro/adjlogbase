@@ -114,6 +114,7 @@ TGraphReader* readcontacts() {
 				tgraphreader->addChange(i, (it->second).at(j), it->first);
 			}
 		}
+    btable[i].clear();
 	}
 
 	//reverse neighbors
@@ -122,6 +123,7 @@ TGraphReader* readcontacts() {
 		for( its = revgraph[i].begin(); its != revgraph[i].end(); ++its) {
 			tgraphreader->addReverseEdge(i, *its);
 		}
+    revgraph[i].clear();
 	}
 
 
