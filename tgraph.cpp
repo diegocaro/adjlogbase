@@ -164,6 +164,11 @@ void TGraph::create(TGraphReader &tgr) {
                 tgraph[i].csize_neighbors = csize_neigh;
 		
 		
+
+                //force free memory
+                vector<uint>().swap(tgr.tgraph[i].neighbors);
+                vector<uint>().swap(tgr.tgraph[i].timepoints);
+    
 		tgr.tgraph[i].neighbors.clear();
 		tgr.tgraph[i].timepoints.clear();
         }
@@ -193,6 +198,9 @@ void TGraph::create(TGraphReader &tgr) {
                 reverse[i].clist = new uint[csize];
                 memcpy(reverse[i].clist, uintbuffer, csize * sizeof(uint));
 
+
+                //force free memory
+                vector<uint>().swap(tgr.revgraph[i].neighbors);
                 tgr.revgraph[i].neighbors.clear();
 
         }
