@@ -76,14 +76,10 @@ TGraphReader* readcontacts() {
 
 	scanf("%u %u %u %u", &nodes, &edges, &lifetime, &contacts);
 
-	for(uint i = 0; i < nodes; i++) {
-		map<uint, vector<uint> > t;
-		btable.push_back(t);
-
-
-		set<uint> s;
-		revgraph.push_back(s);
-	}
+	map<uint, vector<uint> > tm;
+	btable.insert(btable.begin(), nodes, tm);
+  set<uint> ts;
+  revgraph.insert(revgraph.begin(), nodes, ts);
 
 	uint c_read = 0;
 	while( EOF != scanf("%u %u %u %u", &u, &v, &a, &b)) {
@@ -105,6 +101,24 @@ TGraphReader* readcontacts() {
 
 
 	TGraphReader *tgraphreader = new TGraphReader(nodes,edges,2*contacts,lifetime);
+
+	//reverse neighbors
+	set<uint>::iterator its;
+	for(uint i = 0; i < nodes; i++) {
+		if(i%10000==0) fprintf(stderr, "Copying reverse %.1f%%\r", (float)i/nodes*100);
+    
+		for( its = revgraph[i].begin(); its != revgraph[i].end(); ++its) {
+			tgraphreader->addReverseEdge(i, *its);
+		}
+    revgraph[i].clear();
+	}
+  vector< set<uint> >().swap(revgraph);
+  revgraph.clear();
+
+
+
+
+
 	map<uint, vector<uint> >::iterator it;
 
 	//temporal graph
@@ -122,16 +136,6 @@ TGraphReader* readcontacts() {
     btable[i].clear(); 
 	}
 
-	//reverse neighbors
-	set<uint>::iterator its;
-	for(uint i = 0; i < nodes; i++) {
-		if(i%10000==0) fprintf(stderr, "Copying reverse %.1f%%\r", (float)i/nodes*100);
-    
-		for( its = revgraph[i].begin(); its != revgraph[i].end(); ++its) {
-			tgraphreader->addReverseEdge(i, *its);
-		}
-    revgraph[i].clear();
-	}
 
 
 	return tgraphreader;
