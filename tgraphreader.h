@@ -17,7 +17,7 @@ struct event {
 
 class TGraphReaderEventList {
 public:
-  static bool myfunction (struct event &i, struct event &j) { return (i.time<j.time); }
+  static bool myfunction (const struct event &i, const struct event &j) { return (i.time<j.time); }
   
   vector<struct event> events;
   void sort() {
