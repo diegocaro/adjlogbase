@@ -65,7 +65,7 @@ int readopts(int argc, char **argv, struct opts *opts) {
 
 }
 
-
+/*
 TGraphReader* readcontacts() {
 	uint nodes, edges, lifetime, contacts;
 	uint u,v,a,b;
@@ -137,6 +137,54 @@ TGraphReader* readcontacts() {
 	}
 
 
+
+	return tgraphreader;
+}
+
+*/
+
+TGraphReader* readcontacts() {
+	uint nodes, edges, lifetime, contacts;
+	uint u,v,a,b;
+
+	vector < set<uint> > revgraph; //edges are in the form v,u
+
+	scanf("%u %u %u %u", &nodes, &edges, &lifetime, &contacts);
+
+  set<uint> ts;
+  revgraph.insert(revgraph.begin(), nodes, ts);
+
+	TGraphReader *tgraphreader = new TGraphReader(nodes,edges,2*contacts,lifetime);
+
+	uint c_read = 0;
+	while( EOF != scanf("%u %u %u %u", &u, &v, &a, &b)) {
+		c_read++;
+		if(c_read%500000==0) fprintf(stderr, "Processing %.1f%%\r", (float)c_read/contacts*100);
+
+		tgraphreader->addChange(u, v, a);
+
+		//reverse node
+		revgraph[v].insert(u);
+
+		if (b == lifetime-1) continue;
+
+		tgraphreader->addChange(u, v, b);
+	}
+	fprintf(stderr, "Processing %.1f%%\r", (float)c_read/contacts*100);
+	assert(c_read == contacts);
+
+	//reverse neighbors
+	set<uint>::iterator its;
+	for(uint i = 0; i < nodes; i++) {
+		if(i%10000==0) fprintf(stderr, "Copying reverse %.1f%%\r", (float)i/nodes*100);
+    
+		for( its = revgraph[i].begin(); its != revgraph[i].end(); ++its) {
+			tgraphreader->addReverseEdge(i, *its);
+		}
+    revgraph[i].clear();
+	}
+  vector< set<uint> >().swap(revgraph);
+  revgraph.clear();
 
 	return tgraphreader;
 }

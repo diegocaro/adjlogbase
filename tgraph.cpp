@@ -106,6 +106,10 @@ void TGraph::create(TGraphReader &tgr) {
         uint *uintbuffer = new uint[(BUFFER/BLOCKSIZE+1)*BLOCKSIZE];
         //uint *timebuffer = new uint[(BUFFER/BLOCKSIZE+1)*BLOCKSIZE];
         
+        vector<uint> neibuff;
+        vector<uint> timbuff;
+        
+        
         nodes = tgr.nodes;
         edges = tgr.edges;
         changes = tgr.changes;
@@ -116,9 +120,19 @@ void TGraph::create(TGraphReader &tgr) {
         // First pass for ETDC
         struct etdc_table *table = NULL;
         for(uint i=0; i < tgr.nodes; i++) {
-                for (uint j = 0; j < tgr.tgraph[i].changes; j++) {
-                         etdc_add(&table, tgr.tgraph[i].neighbors[j]);
+            if (tgr.tgraph[i].changes() == 0) { LOG("node %u with zero changes", i) ;continue;}
+                
+                
+                tgr.tgraph[i].sort();
+                
+                tgr.tgraph[i].neighbors(neibuff);
+                if (i%1000==0) fprintf(stderr, "Sorting: %0.2f%%\r", (float)i*100/nodes);
+                
+                
+                for (uint j = 0; j < neibuff.size(); j++) {
+                         etdc_add(&table, neibuff[j]);
                 }
+                
         }
         etdc_sort(&table);
         etdc_gencodes(table);
@@ -140,20 +154,24 @@ void TGraph::create(TGraphReader &tgr) {
         uint csize_time, csize_neigh, node_changes;
         for(uint i=0; i < nodes; i++) {
                 if (i%1000==0) fprintf(stderr, "Compressing: %0.2f%%\r", (float)i*100/nodes);
-                node_changes = tgr.tgraph[i].changes;
+                node_changes = tgr.tgraph[i].changes();
                 
                 tgraph[i].changes = 0;
                 tgraph[i].csize_time = 0;
                 tgraph[i].csize_neighbors = 0;
                 
                 if (node_changes == 0) { LOG("node %u with zero changes", i) ;continue;}
-                 
-                csize_neigh = etdc_encode(&table, tgr.tgraph[i].neighbors.data(), node_changes, ucharbuffer);
+                
+                
+                tgr.tgraph[i].neighbors(neibuff);
+                csize_neigh = etdc_encode(&table, neibuff.data(), node_changes, ucharbuffer);
                 tgraph[i].cneighbors = new unsigned char [csize_neigh];
                 memcpy(tgraph[i].cneighbors, ucharbuffer, csize_neigh);
                 
-                encodediff(tgr.tgraph[i].timepoints);
-                csize_time = cc->Compress(tgr.tgraph[i].timepoints.data(), uintbuffer, node_changes);
+                
+                tgr.tgraph[i].timepoints(timbuff);
+                encodediff(timbuff);
+                csize_time = cc->Compress(timbuff.data(), uintbuffer, node_changes);
                 tgraph[i].ctime = new uint [csize_time];
                 memcpy(tgraph[i].ctime, uintbuffer, csize_time * sizeof(uint));
                 //printf("Compression time ratio: %f\n", (float)csize_time/node_changes);
@@ -166,11 +184,7 @@ void TGraph::create(TGraphReader &tgr) {
 		
 
                 //force free memory
-                vector<uint>().swap(tgr.tgraph[i].neighbors);
-                vector<uint>().swap(tgr.tgraph[i].timepoints);
-    
-		tgr.tgraph[i].neighbors.clear();
-		tgr.tgraph[i].timepoints.clear();
+                tgr.tgraph[i].purge();
         }
         fprintf(stderr, "\n");
         

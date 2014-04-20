@@ -1,25 +1,50 @@
 #ifndef TGRAPHREADER_H_
 #define TGRAPHREADER_H_
 
+#include <algorithm>
 #include <vector>
 #include <sys/types.h>
 
 
 using namespace std;
 
+struct event {
+  uint node;
+  uint time;
+};
+
 
 
 class TGraphReaderEventList {
 public:
-        uint changes;
-        vector<uint> neighbors;
-        vector<uint> timepoints;
-        
-        void addEvent(uint v, uint t) {
-                neighbors.push_back(v);
-                timepoints.push_back(t);
-                changes++;
-        }
+  static bool myfunction (struct event &i, struct event &j) { return (i.time<j.time); }
+  
+  vector<struct event> events;
+  void sort() {
+    std::sort(events.begin(), events.end(),myfunction);
+  }
+  void neighbors(vector<uint> &n) {
+    n.clear();
+    for(vector<struct event>::iterator it=events.begin(); it!=events.end(); ++it) {
+      n.push_back(it->node);
+    }
+  }
+  void timepoints(vector<uint> &n) {
+    n.clear();
+    for(vector<struct event>::iterator it=events.begin(); it!=events.end(); ++it) {
+      n.push_back(it->time);
+    }
+  }
+  
+  void purge() {
+    vector<struct event>().swap(events);
+    events.clear();
+  }
+  
+  uint changes() {
+    return events.size();
+  }
+  
 };
 
 
@@ -53,12 +78,18 @@ public:
         }
         
         void addChange(uint u, uint v, uint t) {
-                tgraph[u].addEvent(v,t);
+                struct event e;
+                e.node = v;
+                e.time = t;
+                
+                tgraph[u].events.push_back(e);
         }
 
         void addReverseEdge(uint v, uint u) {
-        	revgraph[v].neighbors.push_back(u);
+        	      revgraph[v].neighbors.push_back(u);
         }
+        
+        
 
 };
 
