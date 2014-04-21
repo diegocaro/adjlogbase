@@ -183,7 +183,7 @@ int main(int argc, char ** argv) {
                 }
                 case REVERSE_NEIGHBORS: {
 			//get_reverse_point(gotreslist, &index, query.row, timePoint);
-			//index->reverse_point(query.row, timePoint, gotreslist);
+					index->reverse_point(query.row, timePoint, gotreslist);
                         break;
                 }
                 case DIRECT_NEIGHBORS_WEAK: {
@@ -193,7 +193,7 @@ int main(int argc, char ** argv) {
                 }
                 case REVERSE_NEIGHBORS_WEAK: {
                         //get_reverse_weak(gotreslist, &index, query.row, timeIntervalStart, timeIntervalEnd);
-						//index->reverse_weak(query.row, timeIntervalStart, timeIntervalEnd, gotreslist);
+					index->reverse_weak(query.row, timeIntervalStart, timeIntervalEnd, gotreslist);
                         break;
                 }
                 case DIRECT_NEIGHBORS_STRONG: {
@@ -203,7 +203,7 @@ int main(int argc, char ** argv) {
                 }
                 case REVERSE_NEIGHBORS_STRONG: {
 			//get_reverse_strong(gotreslist, &index, query.row, timeIntervalStart, timeIntervalEnd);
-			//index->reverse_strong(query.row, timeIntervalStart, timeIntervalEnd, gotreslist);
+					index->reverse_strong(query.row, timeIntervalStart, timeIntervalEnd, gotreslist);
                         break;
                 }
 		
