@@ -55,6 +55,8 @@ int readopts(int argc, char **argv, struct opts *opts) {
 		exit(EXIT_FAILURE);
         }
 	
+		LOG("Compressing with '%s'",opts->c);
+	
 	opts->outfile = argv[optind];
 	
 	return optind;

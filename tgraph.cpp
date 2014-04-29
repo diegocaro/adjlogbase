@@ -401,6 +401,7 @@ uint TGraph::snapshot(uint t){
         
         uint edges=0;
         for(uint v=0; v < nodes; v++) {
+			*buffer = 0;
                 direct_point(v, t, buffer);
                 edges += *buffer;
         }
