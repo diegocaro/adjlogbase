@@ -13,8 +13,8 @@
 #include "debug.h"
 
 struct opts {
-	enum CP_FORMAT c; //bit data structure
 	char *outfile;
+	char c[100];
 };
 
 int readopts(int argc, char **argv, struct opts *opts) {
@@ -22,39 +22,35 @@ int readopts(int argc, char **argv, struct opts *opts) {
 	
 	
 	// Default options
-	opts->c = PFOR;
+	opts->c[0] = 0;
 
 	while ((o = getopt(argc, argv, "c:")) != -1) {
 		switch (o) {
 			case 'c':
-			if(strcmp(optarg, "S9")==0) {
-				INFO("Using S9");
-				opts->c = S9;
-			}
-			else if(strcmp(optarg, "S16")==0) {
-				INFO("Using S16");
-				opts->c = S16;
-			}
-			else if(strcmp(optarg, "VBYTE")==0) {
-				INFO("Using VBYTE");
-				opts->c = VBYTE;
-			}
-			else if(strcmp(optarg, "RICE")==0) {
-				INFO("Using RICE");
-				opts->c = RICE;
-			}
-			else if(strcmp(optarg, "PFOR")==0) {
-				INFO("Using PFOR");
-				opts->c = PFOR;
-			}
+			strcpy(opts->c, optarg);
 			break;
 			default: /* '?' */
 			break;
 		}
 	}
 	
-        if (optind >= argc || (argc-optind) < 1) {
-		fprintf(stderr, "%s [-c S9,S16,VBYTE,RICE,PFOR] <outputfile> \n", argv[0]);
+        if (optind >= argc || (argc-optind) < 1 || opts->c[0] == 0) {
+		fprintf(stderr, "%s -c \"compression string\" <outputfile> \n", argv[0]);
+		fprintf(stderr, "Expected argument for options: \n");
+		fprintf(stderr, "Block Coding: pfor, turbo-rice\n");
+			fprintf(stderr, "Non-Block Coding: RICE, S9, S16, VBYTE, NULL\n");
+				fprintf(stderr, "Parameter -c must be a non-block code, or a blockcode:blocksize:non-blockcode:paddingsize\n");
+					fprintf(stderr, "Example non-blockingcode: -c \"rice\"\n");
+							fprintf(stderr, "Example block-code: -c \"pfor:128:rice:128\"\n");
+//static const char kRiceCoding[] = "rice";
+//static const char kTurboRiceCoding[] = "turbo-rice";
+//static const char kPForDeltaCoding[] = "pfor";
+//static const char kS9Coding[] = "s9";
+//static const char kS16Coding[] = "s16";
+//static const char kVarByteCoding[] = "vbyte";
+//static const char kNullCoding[] = "null";
+		
+		
 		fprintf(stderr, "Expected argument after options\n");
 		exit(EXIT_FAILURE);
         }

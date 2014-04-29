@@ -13,17 +13,30 @@
 
 
 
-#define CP_S9 "s9"
-#define CP_S16 "s16"
-#define CP_VBYTE "vbyte"
-#define CP_RICE "rice"
-#define CP_PFOR "pfor:32:s16:32"
+//#define CP_S9 "s9"
+//#define CP_S16 "s16"
+//#define CP_VBYTE "vbyte"
+//#define CP_RICE "rice"
+//#define CP_PFOR "pfor:32:rice:32"
+//#define CP_PFOR32 "pfor:32:s16:32"
+//#define CP_PFOR64 "pfor:64:s16:32"
+//#define CP_PFOR128 "pfor:128:s16:32"  //codec:blocksize:coder:paddingsize
+
+// Defines names for each coding method.
+//static const char kRiceCoding[] = "rice";
+//static const char kTurboRiceCoding[] = "turbo-rice";
+//static const char kPForDeltaCoding[] = "pfor";
+//static const char kS9Coding[] = "s9";
+//static const char kS16Coding[] = "s16";
+//static const char kVarByteCoding[] = "vbyte";
+//static const char kNullCoding[] = "null";
+
 
 using namespace std;
 
-enum CP_FORMAT {
-	S9, S16, VBYTE, RICE, PFOR,
-};
+//enum CP_FORMAT {
+//	S9, S16, VBYTE, RICE, PFOR32, PFOR64, PFOR128, PFOR
+//};
 
 class TGraphReader;
 
@@ -57,8 +70,6 @@ public:
         
         uint *etdctable;
         uint etdcsize;
-        
-	enum CP_FORMAT cp;
 	
         TGraphEventList* tgraph;
 
@@ -66,23 +77,15 @@ public:
 
         CodingPolicy *cc;
         
-	void set_policy(enum CP_FORMAT c) {
-		cp = c;
+		char cp[100];
+		
+	void set_policy(char *c) {
+		strcpy(cp,c);
 	}
 	
         void loadpolicy() {
                 cc = new CodingPolicy(CodingPolicy::kPosition);
-		
-		switch(cp) {
-			case S9: cc->LoadPolicy(CP_S9); break;
-			case S16: cc->LoadPolicy(CP_S16); break;
-			case VBYTE: cc->LoadPolicy(CP_VBYTE); break;
-			case RICE: cc->LoadPolicy(CP_RICE); break;
-			case PFOR: cc->LoadPolicy(CP_PFOR); break;
-			default: cc->LoadPolicy(CP_PFOR); break;
-		}
-		
-                
+				cc->LoadPolicy(cp);
         }
         
         
