@@ -12,29 +12,25 @@
 
 #include "debug.h"
 
-struct opts {
-	char *outfile;
-	char c[100];
-};
-
 int readopts(int argc, char **argv, struct opts *opts) {
 	int o;
 	
 	
 	// Default options
-	opts->c[0] = 0;
+	opts->cp[0] = 0;
+	opts->typegraph = kInterval;
 
 	while ((o = getopt(argc, argv, "c:")) != -1) {
 		switch (o) {
 			case 'c':
-			strcpy(opts->c, optarg);
+			strcpy(opts->cp, optarg);
 			break;
 			default: /* '?' */
 			break;
 		}
 	}
 	
-        if (optind >= argc || (argc-optind) < 1 || opts->c[0] == 0) {
+        if (optind >= argc || (argc-optind) < 1 || opts->cp[0] == 0) {
 		fprintf(stderr, "%s -c \"compression string\" <outputfile> \n", argv[0]);
 		fprintf(stderr, "Expected argument for options: \n");
 		fprintf(stderr, "Block Coding: pfor, turbo-rice\n");
@@ -141,7 +137,7 @@ TGraphReader* readcontacts() {
 
 */
 
-TGraphReader* readcontacts() {
+TGraphReader* readcontacts(struct opts &opts) {
 	uint nodes, edges, lifetime, contacts;
 	uint u,v,a,b;
 
@@ -164,7 +160,9 @@ TGraphReader* readcontacts() {
 		//reverse node
 		revgraph[v].insert(u);
 
-		if (b == lifetime-1) continue;
+		if ( opts.typegraph == kGrowth || opts.typegraph == kPoint) {
+			if (b == lifetime-1) continue;
+		}
 
 		tgraphreader->addChange(u, v, b);
 	}
@@ -216,9 +214,9 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "\n");
         */
 
-	tg.set_policy(opts.c);
+	tg.set_opts(opts);
 
-	tgraphreader = readcontacts();
+	tgraphreader = readcontacts(opts);
 
         tg.create(*tgraphreader);
         

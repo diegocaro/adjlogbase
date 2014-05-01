@@ -38,6 +38,18 @@ using namespace std;
 //	S9, S16, VBYTE, RICE, PFOR32, PFOR64, PFOR128, PFOR
 //};
 
+
+enum TypeGraph {
+	kInterval, kGrowth, kPoint
+};
+
+struct opts {
+	char *outfile;
+	char cp[100]; //coding policy
+	enum TypeGraph typegraph;
+};
+
+
 class TGraphReader;
 
 class TGraphEventList {
@@ -68,6 +80,8 @@ public:
         uint changes;
         uint maxtime;
         
+        struct opts opts;
+
         uint *etdctable;
         uint etdcsize;
 	
@@ -77,15 +91,14 @@ public:
 
         CodingPolicy *cc;
         
-		char cp[100];
 		
-	void set_policy(char *c) {
-		strcpy(cp,c);
-	}
+        void set_opts(struct opts o) {
+        	opts = o;
+        }
 	
         void loadpolicy() {
                 cc = new CodingPolicy(CodingPolicy::kPosition);
-				cc->LoadPolicy(cp);
+				cc->LoadPolicy(opts.cp);
         }
         
         
