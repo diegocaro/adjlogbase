@@ -20,7 +20,7 @@ int readopts(int argc, char **argv, struct opts *opts) {
 	opts->cp[0] = 0;
 	opts->typegraph = kInterval;
 
-	while ((o = getopt(argc, argv, "c:")) != -1) {
+	while ((o = getopt(argc, argv, "c:t:")) != -1) {
 		switch (o) {
 			case 'c':
 			strcpy(opts->cp, optarg);
