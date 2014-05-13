@@ -14,6 +14,20 @@
 #include <map>
 using namespace std;
 
+void tovector(btree_set<uint> &s, vector<uint> &v) {
+	for(btree_set<uint>::iterator it=s.begin(); it != s.end(); ++it) {
+		v.push_back(*it);
+	}
+}
+
+template<class T, uint (T::*M)()>
+void tovector(btree_set<T> &s, vector<uint> &v) {
+	for(typename btree_set<T>::iterator it=s.begin(); it != s.end(); ++it) {
+		v.push_back((*it.*M)());
+	}
+}
+
+
 
 void encodediff(vector<uint> &t) {
         uint val, old;
@@ -114,23 +128,31 @@ void TGraph::create(TGraphReader &tgr) {
         changes = tgr.changes;
         maxtime = tgr.maxtime;
         
+		vector<uint> readset;
+		
         tgraph = new TGraphEventList[nodes];
         
         // First pass for ETDC
         struct etdc_table *table = NULL;
         for(uint i=0; i < tgr.nodes; i++) {
-            if (tgr.tgraph[i].changes() == 0) { LOG("node %u with zero changes", i) ;continue;}
+            if (tgr.tgraph[i].size() == 0) { LOG("node %u with zero changes", i) ;continue;}
                 
                 
-                tgr.tgraph[i].sort();
-                
-                tgr.tgraph[i].neighbors(neibuff);
-                if (i%1000==0) fprintf(stderr, "Sorting: %0.2f%%\r", (float)i*100/nodes);
-                
-                
+  
+                neibuff.clear();
+				tovector< Event , &Event::getnode > (tgr.tgraph[i], neibuff);
+              	
+				//tgr.tgraph[i].sort();				
+				//tgr.tgraph[i].neighbors(neibuff);
+				
                 for (uint j = 0; j < neibuff.size(); j++) {
                          etdc_add(&table, neibuff[j]);
                 }
+				
+                if (i%1000==0) fprintf(stderr, "Populating codes: %0.2f%%\r", (float)i*100/nodes);
+                
+                
+
                 
         }
         etdc_sort(&table);
@@ -153,7 +175,7 @@ void TGraph::create(TGraphReader &tgr) {
         uint csize_time, csize_neigh, node_changes;
         for(uint i=0; i < nodes; i++) {
                 if (i%1000==0) fprintf(stderr, "Compressing: %0.2f%%\r", (float)i*100/nodes);
-                node_changes = tgr.tgraph[i].changes();
+                node_changes = tgr.tgraph[i].size();
                 
                 tgraph[i].changes = 0;
                 tgraph[i].csize_time = 0;
@@ -162,13 +184,19 @@ void TGraph::create(TGraphReader &tgr) {
                 if (node_changes == 0) { LOG("node %u with zero changes", i) ;continue;}
                 
                 
-                tgr.tgraph[i].neighbors(neibuff);
+                //tgr.tgraph[i].neighbors(neibuff);
+                neibuff.clear();
+				tovector< Event , &Event::getnode > (tgr.tgraph[i], neibuff);
+				
                 csize_neigh = etdc_encode(&table, neibuff.data(), node_changes, ucharbuffer);
                 tgraph[i].cneighbors = new unsigned char [csize_neigh];
                 memcpy(tgraph[i].cneighbors, ucharbuffer, csize_neigh);
                 
                 
-                tgr.tgraph[i].timepoints(timbuff);
+				//tgr.tgraph[i].timepoints(timbuff);
+                timbuff.clear();
+				tovector< Event , &Event::gettime > (tgr.tgraph[i], timbuff);
+                
                 encodediff(timbuff);
                 csize_time = cc->Compress(timbuff.data(), uintbuffer, node_changes);
                 tgraph[i].ctime = new uint [csize_time];
@@ -183,10 +211,13 @@ void TGraph::create(TGraphReader &tgr) {
 		
 
                 //force free memory
-                tgr.tgraph[i].purge();
+                //tgr.tgraph[i].purge();
+				tgr.tgraph[i].clear();
         }
         fprintf(stderr, "\n");
         
+		tgr.tgraph.clear();
+		
         // Creating reverse structure
         reverse = new TGraphReverse[nodes];
         uint csize,size;
@@ -197,14 +228,17 @@ void TGraph::create(TGraphReader &tgr) {
                 reverse[i].csize = 0;
                 reverse[i].clist = NULL;
 
-                size = tgr.revgraph[i].neighbors.size();
+                size = tgr.revgraph[i].size();
 
                 if ( size == 0 ) {
                 	continue;
                 }
 
-                encodediff(tgr.revgraph[i].neighbors);
-                csize = cc->Compress(tgr.revgraph[i].neighbors.data(), uintbuffer, size);
+				readset.clear();
+				tovector(tgr.revgraph[i], readset);
+                encodediff(readset);
+
+                csize = cc->Compress(readset.data(), uintbuffer, size);
 
                 reverse[i].size = size;
                 reverse[i].csize = csize;
@@ -213,11 +247,14 @@ void TGraph::create(TGraphReader &tgr) {
 
 
                 //force free memory
-                vector<uint>().swap(tgr.revgraph[i].neighbors);
-                tgr.revgraph[i].neighbors.clear();
+                //vector<uint>().swap(tgr.revgraph[i].neighbors);
+                tgr.revgraph[i].clear();
 
         }
         
+		tgr.revgraph.clear();
+		
+		
         delete [] uintbuffer;
         delete [] ucharbuffer;
 

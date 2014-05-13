@@ -1,58 +1,36 @@
 #ifndef TGRAPHREADER_H_
 #define TGRAPHREADER_H_
 
+#include "btree_map.h"
+#include "btree_set.h"
+
 #include <algorithm>
 #include <vector>
 #include <sys/types.h>
 
-
+using namespace btree;
 using namespace std;
 
-struct event {
+class Event {
+public:
   uint node;
   uint time;
+  
+  Event() {}
+  
+  Event( const Event &obj) {
+	  node = obj.node;
+	  time = obj.time;
+  }
+  
+	inline bool operator<(const Event& e) const {
+		if (this->time == e.time) return (node < e.node);
+		return  (this->time < e.time);
+	}
+
+	uint getnode() { return node;}
+	uint gettime() { return this->time;}
 };
-
-
-
-class TGraphReaderEventList {
-public:
-  static bool myfunction (const struct event &i, const struct event &j) { return (i.time<j.time); }
-  
-  vector<struct event> events;
-  void sort() {
-    std::sort(events.begin(), events.end(),myfunction);
-  }
-  void neighbors(vector<uint> &n) {
-    n.clear();
-    for(vector<struct event>::iterator it=events.begin(); it!=events.end(); ++it) {
-      n.push_back(it->node);
-    }
-  }
-  void timepoints(vector<uint> &n) {
-    n.clear();
-    for(vector<struct event>::iterator it=events.begin(); it!=events.end(); ++it) {
-      n.push_back(it->time);
-    }
-  }
-  
-  void purge() {
-    vector<struct event>().swap(events);
-    events.clear();
-  }
-  
-  uint changes() {
-    return events.size();
-  }
-  
-};
-
-
-class TGraphReaderReverseList {
-public:
-	vector <uint> neighbors;
-};
-
 
 
 class TGraphReader {
@@ -62,8 +40,11 @@ public:
         uint changes;
         uint maxtime;
         
-        TGraphReaderEventList* tgraph;
-        TGraphReaderReverseList *revgraph;
+        //TGraphReaderEventList* tgraph;
+		btree_map< uint, btree_set <Event> > tgraph;
+		
+        //TGraphReaderReverseList *revgraph;
+		btree_map< uint, btree_set <uint> > revgraph;
 
         TGraphReader(uint n, uint e, uint c, uint t) {
                 nodes = n;
@@ -72,21 +53,21 @@ public:
                 maxtime = t;
                 
                 
-                tgraph = new TGraphReaderEventList[nodes];
+                //tgraph = new TGraphReaderEventList[nodes];
 
-                revgraph = new TGraphReaderReverseList[nodes];
+                //revgraph = new TGraphReaderReverseList[nodes];
         }
         
         void addChange(uint u, uint v, uint t) {
-                struct event e;
+                Event e;
                 e.node = v;
                 e.time = t;
                 
-                tgraph[u].events.push_back(e);
+                tgraph[u].insert(e);
         }
 
         void addReverseEdge(uint v, uint u) {
-        	      revgraph[v].neighbors.push_back(u);
+        	revgraph[v].insert(u);
         }
         
         
