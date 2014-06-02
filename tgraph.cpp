@@ -202,8 +202,8 @@ void TGraph::create(TGraphReader &tgr) {
 		csize_time = cc->Compress(timbuff.data(), uintbuffer, node_changes);
 
 		// Checking compressed data
-		uint *n = new uint[ cc->block_size()*(readset.size()/cc->block_size()+2)];
-		cc->Decompress(uintbuffer, n, readset.size());
+		uint *n = new uint[ cc->block_size()*(timbuff.size()/cc->block_size()+2)];
+		cc->Decompress(uintbuffer, n, timbuff.size());
 		for(size_t k = 0; k < readset.size(); k++) {
 		  assert(n[k] == readset[k] && "Error compressing time data");
 		}
