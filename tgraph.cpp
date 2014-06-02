@@ -195,10 +195,21 @@ void TGraph::create(TGraphReader &tgr) {
                 
 				//tgr.tgraph[i].timepoints(timbuff);
                 timbuff.clear();
-				tovector< Event , &Event::gettime > (tgr.tgraph[i], timbuff);
+		tovector< Event , &Event::gettime > (tgr.tgraph[i], timbuff);
                 
                 encodediff(timbuff);
-                csize_time = cc->Compress(timbuff.data(), uintbuffer, node_changes);
+                timbuff.reserve(cc->block_size()*(timbuff.size()/cc->block_size()+2));
+		csize_time = cc->Compress(timbuff.data(), uintbuffer, node_changes);
+
+		// Checking compressed data
+		uint *n = new uint[ cc->block_size()*(readset.size()/cc->block_size()+2)];
+		cc->Decompress(uintbuffer, n, readset.size());
+		for(size_t k = 0; k < readset.size(); k++) {
+		  assert(n[k] == readset[k] && "Error compressing time data");
+		}
+		delete [] n;
+
+
                 tgraph[i].ctime = new uint [csize_time];
                 memcpy(tgraph[i].ctime, uintbuffer, csize_time * sizeof(uint));
                 //printf("Compression time ratio: %f\n", (float)csize_time/node_changes);
@@ -234,11 +245,22 @@ void TGraph::create(TGraphReader &tgr) {
                 	continue;
                 }
 
-				readset.clear();
-				tovector(tgr.revgraph[i], readset);
+		readset.clear();
+		tovector(tgr.revgraph[i], readset);
                 encodediff(readset);
 
+		// increase readset size to an upper multiply of blocksize 
+		readset.reserve(cc->block_size()*(readset.size()/cc->block_size()+2));
                 csize = cc->Compress(readset.data(), uintbuffer, size);
+
+		// Checking compressed data
+		uint *n = new uint[ cc->block_size()*(readset.size()/cc->block_size()+2)];
+		cc->Decompress(ccedgebuffer, n, readset.size());
+		for(size_t k = 0; k < readset.size(); k++) {
+		  assert(n[k] == readset[k] && "Error compressing reverse graph");
+		}
+		delete [] n;
+
 
                 reverse[i].size = size;
                 reverse[i].csize = csize;
