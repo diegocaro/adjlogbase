@@ -226,95 +226,10 @@ int main(int argc, char ** argv) {
 		}
                 }
 
-#ifndef EXPERIMENTS
-//                //Comentar para medir tiempos:
-                
-                  if (savegotFile) {
-                    gotFile = fopen(gotqueryFile, "a");
-		    fprintf(gotFile, "%d ", query.type);
-                    switch(query.type) {
-                    case EDGE: case EDGE_NEXT: {
-                      fprintf(gotFile, "%d %d %d\n", query.row, query.column, query.time);
-                      break;
-                    }
-                    case EDGE_WEAK: case EDGE_STRONG: {
-                      fprintf(gotFile, "%d %d %d %d\n", query.row, query.column, query.initime, query.endtime);
-                      break;
-                    }
-                    case DIRECT_NEIGHBORS: case REVERSE_NEIGHBORS: {
-                      fprintf(gotFile, "%d %d\n", query.row, query.time);
-                      break;
-                    }
-                    case DIRECT_NEIGHBORS_WEAK: case DIRECT_NEIGHBORS_STRONG:
-                    case REVERSE_NEIGHBORS_WEAK: case REVERSE_NEIGHBORS_STRONG: {
-                      fprintf(gotFile, "%d %d %d\n", query.row, query.initime, query.endtime);
-                      break;
-                    }
-		    case SNAPSHOT:
-		      fprintf(gotFile, "%d\n", query.time);
-		    break;
-                    }
-
-                    if (query.type == EDGE || query.type == EDGE_NEXT || query.type == EDGE_WEAK || query.type == EDGE_STRONG || query.type == SNAPSHOT) {
-                      fprintf(gotFile,"%d\n", gotres);
-                    } else {
-                      uint j;
-                      fprintf(gotFile, "%d", gotreslist[0]);
-                      for (j = 1; j <= gotreslist[0]; j++) {
-                        fprintf(gotFile, " %d", gotreslist[j]);
-                      }
-                      fprintf(gotFile, "\n");
-                    }
-
-                    fclose(gotFile);
-                  }
-		  
-		if (CHECK_RESULTS) {
-                  int failcompare = 0;
-                  if (query.type == EDGE || query.type == EDGE_NEXT || query.type == EDGE_WEAK || query.type == EDGE_STRONG || query.type == SNAPSHOT) {
-                    failcompare = (gotres != query.expectednres);
-                  } else {
-                    qsort(&gotreslist[1], *gotreslist, sizeof(unsigned int), compare);
-                    failcompare = compareRes(gotreslist, query.expectedres);
-                    gotres = gotreslist[0];
-                  }
-                  if (failcompare) {
-                    printf("query queryType=%d, row=%d, column=%d, time=%d, initime=%d, endtime=%d, expectedres=%d\n", query.type, query.row, query.column, query.time, query.initime, query.endtime, query.expectednres);
-                    printf("count: got %d expected %d\n", gotres, query.expectednres);
-                    
-		    if ( ! (query.type == EDGE || query.type == EDGE_NEXT || query.type == EDGE_WEAK || query.type == EDGE_STRONG || query.type == SNAPSHOT)) {
-		        printf("expected: "); print_arraysort(query.expectedres);
-                        printf("got     : "); print_arraysort(gotreslist);
-	    	    }
-		    exit(1);
-                  }
-                  totalres += gotres;
-                }
-
-#else
-                totalres += *gotreslist;
-#endif
-
-
-
+				printf("%s\t%lu\t%u\n", fileName, endClockTime(), *gotreslist);
 
         }
-        unsigned long microsecs = endClockTime()/1000; //to microsecs
 
-//	printf("time = (%lf), %d queries, %lf micros/query, %lf micros/arista\n",
-//	               difftime, nqueries,
-//	               difftime/nqueries, difftime/totalres);
-
-	        //printf("time = %lf (%ld) (%lf), %d queries, %lf micros/query, %lf micros/arista\n",
-	         //      timeFromBegin(), realTimeFromBegin(), difftime, nqueries,
-	          //     difftime/nqueries, difftime/totalres);
-
-
-        // datasets.structura query_input num_queries totaloutput timeperquery timeperoutput
-        printf("%s\t%s\t%ld\t%d\t%d\t%lf\t%lf\n", argv[1], argv[2],
-                       microsecs, nqueries, totalres, (double)microsecs/nqueries, (double)microsecs/totalres);
-
-        //destroyK2Tree(tree);
 
         exit(0);
 }
