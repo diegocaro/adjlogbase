@@ -151,3 +151,46 @@ void xor_arraysort(unsigned int *b) {
   *b = i;
 
 }
+
+
+// res must be different than a and b
+void intersection_arraysort(unsigned int *res, const unsigned int *a, const unsigned int *b) {
+  int i, j, u;
+
+  i = j = u = 1;
+
+  while (1) {
+
+    if ( i == a[0]+1 && j == b[0]+1 ) {
+      break;
+    }
+
+    if (i == a[0]+1) {
+      break;
+    }
+
+    if (j == b[0]+1) {
+      break;
+    }
+
+    if ( a[i] < b[j] ) {
+      i++;
+      continue;
+    }
+
+    if ( a[i] > b[j] ) {
+      j++;
+      continue;
+    }
+
+    if ( a[i] == b[j] ) {
+      res[u] = a[i];
+      i++; j++; u++;
+      continue;
+    }
+
+  }
+
+  *res = u-1;
+
+}

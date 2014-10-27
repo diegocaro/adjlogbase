@@ -137,6 +137,19 @@ public:
 	void reverse_weak(uint node, uint tstart, uint tend, uint *res) ;
 	void reverse_strong(uint node, uint tstart, uint tend, uint *res) ;
 
+
+    size_t change_point(uint t);
+    size_t change_interval(uint ts, uint te);
+    size_t change_node(uint u, uint ts, uint te);
+
+    size_t actived_point(uint t);
+    size_t actived_interval(uint ts, uint te);
+    size_t actived_node(uint u, uint ts, uint te);
+
+
+    size_t deactived_point(uint t);
+    size_t deactived_interval(uint ts, uint te);
+    size_t deactived_node(uint u, uint ts, uint te);
 };
 
 

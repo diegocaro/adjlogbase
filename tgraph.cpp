@@ -635,3 +635,203 @@ void TGraph::reverse_strong(uint v, uint tstart, uint tend, uint *res) {
         *res = i;
         delete [] nodep;
 }
+
+
+
+size_t TGraph::change_point(uint t) {
+    return change_interval(t,t+1);
+}
+size_t TGraph::change_interval(uint ts, uint te) {
+    size_t edges = 0;
+    uint node;
+    for (node = 0; node < nodes; node++) {
+        edges += change_node(node,ts,te);
+    }
+
+    return edges;
+}
+
+
+size_t TGraph::change_node(uint v, uint tstart, uint tend)  {
+        if (v>=nodes|| tgraph[v].changes == 0) return 0;
+
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
+        uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
+
+        uint *buffer = new uint[BLOCKSIZE*tgraph[v].changes];
+        uint *interval = new uint[BLOCKSIZE*tgraph[v].changes];
+
+        decodetime(v, timep);
+        decodeneigh(v, nodep);
+
+        unordered_map <uint,uint> thashi; //interval
+
+        uint *low = std::lower_bound (timep, timep+tgraph[v].changes, tstart);
+
+        for(uint j=low-timep; j < tgraph[v].changes; j++) {
+            if (timep[j] >= tend) break;
+            thashi[nodep[j]] = 1;
+        }
+
+        //get what changed its state
+        uint k=0;
+        for ( unordered_map<uint,uint>::iterator it = thashi.begin(); it != thashi.end(); ++it ) {
+            interval[++k] = it->first;
+        }
+        *interval = k;
+
+       // qsort(&interval[1], *interval, sizeof(unsigned int), compare);
+
+        delete [] timep;
+        delete [] nodep;
+        delete [] buffer;
+        delete [] interval;
+
+        return (size_t)k;
+}
+
+
+
+
+size_t TGraph::actived_point(uint t) {
+    return actived_interval(t,t+1);
+}
+size_t TGraph::actived_interval(uint ts, uint te) {
+    size_t edges = 0;
+    uint node;
+    for (node = 0; node < nodes; node++) {
+        edges += actived_node(node,ts-1,te-1);
+    }
+
+    return edges;
+}
+
+
+size_t TGraph::actived_node(uint v, uint tstart, uint tend)  {
+        if (v>=nodes|| tgraph[v].changes == 0) return 0;
+
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
+            uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
+
+            uint *buffer = new uint[BLOCKSIZE*tgraph[v].changes];
+            uint *interval = new uint[BLOCKSIZE*tgraph[v].changes];
+
+            decodetime(v, timep);
+            decodeneigh(v, nodep);
+
+            unordered_map <uint,uint> thashp; //point
+            unordered_map <uint,uint> thashi; //interval
+            for(uint j=0; j < tgraph[v].changes; j++) {
+              if (timep[j] <= tstart) {
+                  thashp[nodep[j]]++;
+              }
+
+              else if (timep[j] > tstart && timep[j]<= tend) {
+                  thashi[nodep[j]] = 1;
+              }
+
+              if (timep[j] > tend) break;
+            }
+
+
+            uint i=0;
+            for ( unordered_map<uint,uint>::iterator it = thashp.begin(); it != thashp.end(); ++it ) {
+              if (it->second %2 == 1) {
+                buffer[++i] = it->first;
+              }
+
+            }
+            *buffer = i;
+
+            uint k=0;
+            for ( unordered_map<uint,uint>::iterator it = thashi.begin(); it != thashi.end(); ++it ) {
+                interval[++k] = it->first;
+            }
+            *interval = k;
+
+            qsort(&buffer[1], *buffer, sizeof(unsigned int), compare);
+            qsort(&interval[1], *interval, sizeof(unsigned int), compare);
+
+            diff_arraysort(interval, buffer);
+            k = *interval;
+
+            delete [] timep;
+            delete [] nodep;
+            delete [] buffer;
+            delete [] interval;
+
+        return (size_t)k;
+}
+
+
+size_t TGraph::deactived_point(uint t) {
+    return deactived_interval(t,t+1);
+}
+size_t TGraph::deactived_interval(uint ts, uint te) {
+    size_t edges = 0;
+    uint node;
+    for (node = 0; node < nodes; node++) {
+        edges += deactived_node(node,ts-1,te-1);
+    }
+
+    return edges;
+}
+
+
+size_t TGraph::deactived_node(uint v, uint tstart, uint tend)  {
+        if (v>=nodes|| tgraph[v].changes == 0) return 0;
+
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
+            uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
+
+            uint *buffer = new uint[BLOCKSIZE*tgraph[v].changes];
+            uint *interval = new uint[BLOCKSIZE*tgraph[v].changes];
+
+            decodetime(v, timep);
+            decodeneigh(v, nodep);
+
+            unordered_map <uint,uint> thashp; //point
+            unordered_map <uint,uint> thashi; //interval
+            for(uint j=0; j < tgraph[v].changes; j++) {
+              if (timep[j] <= tstart) {
+                  thashp[nodep[j]]++;
+              }
+
+              else if (timep[j] > tstart && timep[j]<= tend) {
+                  thashi[nodep[j]] = 1;
+              }
+
+              if (timep[j] > tend) break;
+            }
+
+
+            uint i=0;
+            for ( unordered_map<uint,uint>::iterator it = thashp.begin(); it != thashp.end(); ++it ) {
+              if (it->second %2 == 1) {
+                buffer[++i] = it->first;
+              }
+
+            }
+            *buffer = i;
+
+            uint k=0;
+            for ( unordered_map<uint,uint>::iterator it = thashi.begin(); it != thashi.end(); ++it ) {
+                interval[++k] = it->first;
+            }
+            *interval = k;
+
+            qsort(&buffer[1], *buffer, sizeof(unsigned int), compare);
+            qsort(&interval[1], *interval, sizeof(unsigned int), compare);
+
+            intersection_arraysort(nodep, buffer, interval);
+            k = *nodep;
+
+
+
+            delete [] timep;
+            delete [] nodep;
+            delete [] buffer;
+            delete [] interval;
+
+        return (size_t)k;
+}

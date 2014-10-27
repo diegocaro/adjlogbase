@@ -10,4 +10,7 @@ void remove_duplicates(unsigned int *b);
 void merge_arraysort( unsigned int *res,  const unsigned int *a, const unsigned int *b);
 
 void xor_arraysort(unsigned int *b);
+
+void intersection_arraysort(unsigned int *res, const unsigned int *a, const unsigned int *b);
+
 #endif
