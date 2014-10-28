@@ -38,6 +38,13 @@ pode haber repetidos)
 #define REVERSE_NEIGHBORS_WEAK 4
 #define REVERSE_NEIGHBORS_STRONG 5
 
+#define CHANGE_POINT 11
+#define CHANGE_INTERVAL 12
+#define ACTIVED_POINT 13
+#define ACTIVED_INTERVAL 14
+#define DEACTIVED_POINT 15
+#define DEACTIVED_INTERVAL 16
+
 #define ISIZE 5
 
 int compareRes(unsigned int * l1, unsigned int * l2) {
@@ -91,15 +98,22 @@ TimeQuery * readQueries(char * filename, int * nqueries) {
                                 res = fscanf(queryFile, "%d %d %d\n", &query->row, &query->initime, &query->endtime);
                                 break;
                         }
-                        case SNAPSHOT: {
-				//the number of active edges at time t
+                        case SNAPSHOT: case CHANGE_POINT: case ACTIVED_POINT: case DEACTIVED_POINT: {
                                 res = fscanf(queryFile, "%d\n", &query->time); 
+                                break;
+                        }
+
+                        case CHANGE_INTERVAL: case ACTIVED_INTERVAL: case DEACTIVED_INTERVAL: {
+                                res = fscanf(queryFile, "%d %d\n", &query->initime, &query->endtime);
                                 break;
                         }
                 }
 
-                if(query->type  == EDGE || query->type  == EDGE_NEXT || query->type == EDGE_STRONG || query->type == EDGE_WEAK || query->type == SNAPSHOT)
-                        res = fscanf(queryFile, "%d\n", &query->expectednres);
+                if(query->type  == EDGE || query->type == EDGE_NEXT || query->type == EDGE_STRONG || query->type == EDGE_WEAK || query->type == SNAPSHOT ||
+                        query->type == CHANGE_POINT || query->type == CHANGE_INTERVAL || query->type == ACTIVED_POINT || query->type == ACTIVED_INTERVAL ||
+                        query->type == DEACTIVED_POINT || query->type == DEACTIVED_INTERVAL)
+
+                    res = fscanf(queryFile, "%d\n", &query->expectednres);
                 else {
                         res = fscanf(queryFile, "%d", &query->expectednres);
                         uint i;
@@ -161,6 +175,7 @@ int main(int argc, char ** argv) {
 
 	startClockTime();
         for (i = 0; i < nqueries; i++) {
+			fprintf(stderr, "Processing %d/%d\r", i, nqueries);
                 TimeQuery query = queries[i];
 
 		//cleaning vector of results
@@ -224,9 +239,42 @@ int main(int argc, char ** argv) {
 //                      gotres = findRange(tree, 0, tree->nNodesReal, 0, tree->nNodesReal, time)[0][0];
 			break;
 		}
+		
+
+        case CHANGE_POINT: {
+            gotres = index->change_point(query.time);
+            *gotreslist = gotres;
+            break;
+        }
+        case CHANGE_INTERVAL: {
+            gotres = index->change_interval(query.initime, query.endtime);
+            *gotreslist = gotres;
+            break;
+        }
+        case ACTIVED_POINT: {
+            gotres = index->actived_point(query.time);
+            *gotreslist = gotres;
+            break;
+        }
+        case ACTIVED_INTERVAL: {
+            gotres = index->actived_interval(query.initime, query.endtime);
+            *gotreslist = gotres;
+            break;
+        }
+        case DEACTIVED_POINT: {
+            gotres = index->deactived_point(query.time);
+            *gotreslist = gotres;
+            break;
+        }
+        case DEACTIVED_INTERVAL: {
+            gotres = index->deactived_interval(query.initime, query.endtime);
+            *gotreslist = gotres;
+            break;
+        }
+		
                 }
 
-				printf("%s\t%lu\t%u\n", fileName, endClockTime(), *gotreslist);
+				printf("%s\t%s\t%lu\t%u\n", fileName, argv[2], endClockTime(), *gotreslist);
 
         }
 
