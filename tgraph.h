@@ -9,7 +9,7 @@
 #include "coding_policy.h"
 
 #define BLOCKSIZE 128
-#define BUFFER 67108864 //256 megabytes
+#define BUFFER 67108864*4 //256*4 megabytes
 
 
 
