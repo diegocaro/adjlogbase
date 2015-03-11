@@ -150,6 +150,21 @@ public:
     size_t deactived_point(uint t);
     size_t deactived_interval(uint ts, uint te);
     size_t deactived_node(uint u, uint ts, uint te);
+	
+	size_t getSize() {
+		size_t size_time=0;
+		size_t size_events=0;
+		
+		for(uint i=0; i < nodes; i++) {
+			size_time += (tgraph[i]->csize_time )*sizeof(uint);
+			size_events += tgraph[i]->csize_neighbors;
+		} 
+		
+		printf("neighbors: %.2lf MBytes\n", size_events/1024/1024);
+		printf("time: %.2lf MBytes\n", size_time/1024/1024)
+		
+		return size_time + size_events;
+	}
 };
 
 

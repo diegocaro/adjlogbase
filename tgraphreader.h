@@ -63,7 +63,15 @@ public:
                 e.node = v;
                 e.time = t;
                 
-                tgraph[u].insert(e);
+                pair<btree_set<Event>::iterator, bool> info;
+
+                info = tgraph[u].insert(e);
+
+                // por si el datasets tiene intervalos de la forma I1 = [a,b) I2 = [b, c)
+                // Guardamos solo el intervalo [a,c) ... (solo pasa si est‡ corrupto el dataset)
+                if (info.second == false) {
+                    tgraph[u].erase(info.first);
+                }
         }
 
         void addReverseEdge(uint v, uint u) {
