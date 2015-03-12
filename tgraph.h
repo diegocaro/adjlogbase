@@ -154,10 +154,10 @@ public:
 
     // point contact graphs
     void direct_interval_pg(uint node, uint tstart, uint tend, uint *res) ;
-    void reverse_interval_pg(uint node, uint tstart, uint tend, uint *res) ;
+    //void reverse_interval_pg(uint node, uint tstart, uint tend, uint *res) ; //captured by edge_interval_pg
     int edge_interval_pg(uint u, uint v, uint tstart, uint tend) ;
     int edge_next_pg(uint u, uint v, uint t);
-    size_t snapshot_pg(uint t) ;
+    //size_t snapshot_pg(uint t) ; //captured by direct_point
 
     //size_t change_interval_pg(uint ts, uint te); //do not need an upgrade
     size_t actived_interval_pg(uint ts, uint te);
