@@ -918,7 +918,7 @@ int TGraph::edge_interval_pg (uint v, uint u, uint tstart, uint tend){
 
     uint occinterval=0;
     for(uint j=0; j < tgraph[v].changes; j++) {
-            else if (timep[j] >= tstart) {
+            if (timep[j] >= tstart) {
                     if( u == nodep[j]) occinterval++;
             }
 
