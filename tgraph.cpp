@@ -922,7 +922,7 @@ int TGraph::edge_interval_pg (uint v, uint u, uint tstart, uint tend){
             if (timep[j] < tstart) {
                     if( u == nodep[j]) occ++;
             }
-            else if (timep[j] => tstart && timep[j]< tend) {
+            else if (timep[j] >= tstart && timep[j]< tend) {
                     if( u == nodep[j]) occinterval++;
             }
 
