@@ -916,13 +916,9 @@ int TGraph::edge_interval_pg (uint v, uint u, uint tstart, uint tend){
     decodetime(v, timep);
     decodeneigh(v, nodep);
 
-    uint occ=0;
     uint occinterval=0;
     for(uint j=0; j < tgraph[v].changes; j++) {
-            if (timep[j] < tstart) {
-                    if( u == nodep[j]) occ++;
-            }
-            else if (timep[j] >= tstart && timep[j]< tend) {
+            else if (timep[j] >= tstart) {
                     if( u == nodep[j]) occinterval++;
             }
 
@@ -933,7 +929,7 @@ int TGraph::edge_interval_pg (uint v, uint u, uint tstart, uint tend){
     delete [] timep;
     delete [] nodep;
 
-    if (occ < occinterval) {
+    if (occinterval > 0) {
         return 1;
     }
 
