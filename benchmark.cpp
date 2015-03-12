@@ -184,21 +184,25 @@ int main(int argc, char ** argv) {
                case EDGE: {
                        gotres = index->edge_point(query.row, query.column, query.time);
                        //gotres = findEdge(tree, query.row, query.column, query.time);
+                       *gotreslist = gotres;
                        break;
                }
                case EDGE_NEXT: {
                        //gotres = findEdgeInterval(tree, query.row, query.column, query.initime, query.endtime, 1);
                        gotres = index->edge_next(query.row, query.column, query.time);
+                       *gotreslist = gotres;
                        break;
                }
                case EDGE_WEAK: {
                        //gotres = findEdgeInterval(tree, query.row, query.column, query.initime, query.endtime, 0);
                        gotres = index->edge_weak(query.row, query.column, query.initime, query.endtime);
+                       *gotreslist = gotres;
                        break;
                }
                case EDGE_STRONG: {
                        //gotres = findEdgeInterval(tree, query.row, query.column, query.initime, query.endtime, 1);
                        gotres = index->edge_strong(query.row, query.column, query.initime, query.endtime);
+                       *gotreslist = gotres;
                        break;
                }
                 case DIRECT_NEIGHBORS: {

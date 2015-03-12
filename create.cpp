@@ -180,9 +180,10 @@ TGraphReader* readcontacts(struct opts &opts) {
 		//reverse node
 		tgraphreader->addReverseEdge(v,u);
 
-		if ( opts.typegraph == kGrowth || opts.typegraph == kPoint) {
-			if (b == lifetime-1) continue;
-		}
+		if (opts.typegraph == kPoint) continue;
+
+		if ( opts.typegraph == kGrowth  && b == lifetime-1) continue;
+
 
 		tgraphreader->addChange(u, v, b);
 	}

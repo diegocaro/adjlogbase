@@ -835,3 +835,52 @@ size_t TGraph::deactived_node(uint v, uint tstart, uint tend)  {
 
         return (size_t)k;
 }
+
+
+// point contact graphs
+void TGraph::direct_interval_pg(uint v, uint tstart, uint tend, uint *res) {
+    if (v>=nodes|| tgraph[v].changes == 0) return;
+
+    uint *timep = new uint[BLOCKSIZE*tgraph[v].changes];
+    uint *nodep = new uint[BLOCKSIZE*tgraph[v].changes];
+
+
+
+    decodetime(v, timep);
+    decodeneigh(v, nodep);
+
+    uint *low = lower_bound(timep,timep+tgraph[v].changes,tstart);
+    uint *up = lower_bound(timep,timep+tgraph[v].changes,tend);
+
+    unordered_map <uint,uint> thashi; //interval
+    for(uint j = low-timep; j < up-timep; j++) {
+          thashi[nodep[j]] = 1;
+    }
+
+    uint k=0;
+    for ( unordered_map<uint,uint>::iterator it = thashi.begin(); it != thashi.end(); ++it ) {
+        res[++k] = it->first;
+    }
+    *res = k;
+}
+
+void TGraph::reverse_interval_pg(uint node, uint tstart, uint tend, uint *res) {
+
+}
+int TGraph::edge_interval_pg(uint u, uint v, uint tstart, uint tend) {
+
+}
+int TGraph::edge_next_pg(uint u, uint v, uint t) {
+
+}
+size_t TGraph::snapshot_pg(uint t) {
+
+}
+
+//size_t TGraph::change_interval_pg(uint ts, uint te); //do not need an upgrade
+size_t TGraph::actived_interval_pg(uint ts, uint te) {
+
+}
+size_t TGraph::deactived_interval_pg(uint ts, uint te) {
+
+}
