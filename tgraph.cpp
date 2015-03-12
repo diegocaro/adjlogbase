@@ -919,14 +919,14 @@ int TGraph::edge_interval_pg (uint v, uint u, uint tstart, uint tend){
     uint occ=0;
     uint occinterval=0;
     for(uint j=0; j < tgraph[v].changes; j++) {
-            if (timep[j] <= tstart) {
+            if (timep[j] < tstart) {
                     if( u == nodep[j]) occ++;
             }
-            else if (timep[j] > tstart && timep[j]<= tend) {
+            else if (timep[j] => tstart && timep[j]< tend) {
                     if( u == nodep[j]) occinterval++;
             }
 
-            if (timep[j] > tend) break;
+            if (timep[j] >= tend) break;
 
     }
 
